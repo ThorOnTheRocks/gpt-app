@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import Link from 'next/link';
+import { SessionProvider } from 'next-auth/react';
+import { signIn, auth } from '@/auth';
+import UserButton from '@/components/UserButton';
 import './globals.css';
 
 const geistSans = localFont({
@@ -19,27 +22,46 @@ export const metadata: Metadata = {
   description: 'Your personal GPT',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
+  if (session?.user) {
+    session.user = {
+      name: session.user.name,
+      email: session.user.email,
+      image: session.user.image,
+    };
+  }
+
   return (
-    <html lang="en">
-      <body className={`${geistSans.className} px-2 md:px-5`}>
-        <header className="text-white font-bold bg-green-900 text-2xl p-2 mb-3 rounded-b-lg shadow-gray-700 shadow-lg flex">
-          <div className="flex flex-grow">
-            <Link href="/">GPT Chat</Link>
-            <Link href="/about" className="ml-5 font-light">
-              About
-            </Link>
+    <SessionProvider basePath="/api/auth" session={session}>
+      <html lang="en">
+        <body className={`${geistSans.className} px-2 md:px-5`}>
+          <header className="text-white font-bold bg-green-900 text-2xl p-2 mb-3 rounded-b-lg shadow-gray-700 shadow-lg flex">
+            <div className="flex flex-grow">
+              <Link href="/">GPT Chat</Link>
+              <Link href="/about" className="ml-5 font-light">
+                About
+              </Link>
+            </div>
+            <div>
+              <UserButton
+                onSignIn={async () => {
+                  'use server';
+                  await signIn();
+                }}
+              />
+            </div>
+          </header>
+          <div className="flex flex-col md:flex-row">
+            <div className="flex-grow">{children}</div>
           </div>
-          <div></div>
-        </header>
-        <div className="flex flex-col md:flex-row">
-          <div className="flex-grow">{children}</div>
-        </div>
-      </body>
-    </html>
+        </body>
+      </html>
+    </SessionProvider>
   );
 }
