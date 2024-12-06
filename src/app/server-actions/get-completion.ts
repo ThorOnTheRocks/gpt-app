@@ -1,4 +1,6 @@
 'use server';
+import { createChat, updateChat } from '@/db';
+import { auth as getServerSession } from '@/auth';
 import Anthropic from '@anthropic-ai/sdk';
 
 const anthropic = new Anthropic({
@@ -11,6 +13,7 @@ interface IMessageHistory {
 }
 
 export async function getCompletion(
+  id: number | null,
   messageHistory: IMessageHistory[]
 ) {
   const response = await anthropic.messages.create({
@@ -23,10 +26,36 @@ export async function getCompletion(
 
   const messages = [
     ...messageHistory,
-    text as unknown as IMessageHistory,
+    {
+      role: 'assistant',
+      content: text,
+    },
   ];
+
+  const session = await getServerSession();
+
+  if (!session?.user?.name) {
+    throw new Error('No user session found');
+  }
+
+  let chatId = id;
+  try {
+    if (!chatId) {
+      chatId = await createChat(
+        session.user.name,
+        messageHistory[0].content.substring(0, 255), // Truncate to fit column
+        messages
+      );
+    } else {
+      await updateChat(chatId, messages);
+    }
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw error;
+  }
 
   return {
     messages,
+    id: chatId,
   };
 }
