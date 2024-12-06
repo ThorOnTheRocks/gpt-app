@@ -1,20 +1,31 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { getCompletion } from '@/app/server-actions/get-completion';
+import { Message } from '@/types';
 
 interface MessageState {
   role: 'user' | 'assistant';
   content: string;
 }
 
-export function Chat() {
-  const [messages, setMessages] = useState<MessageState[]>([]);
+export function Chat({
+  id = null,
+  messages: initialMessages = [],
+}: {
+  id?: number | null;
+  messages?: Message[];
+}) {
+  const [messages, setMessages] =
+    useState<MessageState[]>(initialMessages);
   const [message, setMessage] = useState('');
-  const chatId = useRef<number | null>(null);
+  const chatId = useRef<number | null>(id);
+
+  const router = useRouter();
 
   const onClick = async () => {
     const completions = await getCompletion(chatId.current, [
@@ -24,14 +35,17 @@ export function Chat() {
         content: message,
       },
     ]);
-    chatId.current = completions.id;
+    if (!chatId.current) {
+      router.push(`/chats/${completions.id}`);
+      router.refresh();
+    }
     setMessage('');
 
     const validMessages: MessageState[] = completions.messages.filter(
       (msg): msg is MessageState =>
         msg.role === 'user' || msg.role === 'assistant'
     );
-    console.log({ validMessages });
+
     setMessages(validMessages);
   };
 
