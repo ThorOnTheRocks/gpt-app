@@ -24,16 +24,15 @@ export function Chat() {
         content: message,
       },
     ]);
-
-    const newMessages: MessageState[] = completions.messages.map(
-      (msg, index) => ({
-        role: index === 0 ? 'user' : 'assistant',
-        content: typeof msg === 'string' ? msg : msg.content,
-      })
-    );
     chatId.current = completions.id;
     setMessage('');
-    setMessages(newMessages);
+
+    const validMessages: MessageState[] = completions.messages.filter(
+      (msg): msg is MessageState =>
+        msg.role === 'user' || msg.role === 'assistant'
+    );
+    console.log({ validMessages });
+    setMessages(validMessages);
   };
 
   return (
