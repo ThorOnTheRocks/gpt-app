@@ -1,6 +1,7 @@
 import { Chat } from '@/components/Chat';
 import { Separator } from '@/components/ui/separator';
 import { auth as getServerSession } from '@/auth';
+import PreviousChats from '@/components/PreviousChat';
 
 export default async function Home() {
   const session = await getServerSession();
@@ -13,6 +14,11 @@ export default async function Home() {
       )}
       {session?.user && (
         <>
+          <PreviousChats />
+          <h4 className="mt-5 text-2xl font-bold">
+            New Chat Session
+          </h4>
+
           <Separator className="my-5" />
           <Chat />
         </>
