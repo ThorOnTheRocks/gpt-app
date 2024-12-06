@@ -9,7 +9,13 @@ import Transcript from './Transcript';
 
 export default async function PreviousChats() {
   const session = await getServerSession();
-  const chats = await getChatsWithMessages(session?.user?.name!);
+
+  if (!session?.user?.name) {
+    console.error('User name is missing');
+    return <div>Error: Unable to fetch chats</div>;
+  }
+
+  const chats = await getChatsWithMessages(session.user.name);
 
   return (
     <div>
