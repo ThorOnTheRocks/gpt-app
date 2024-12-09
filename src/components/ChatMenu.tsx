@@ -7,6 +7,9 @@ import { getChats } from '@/db';
 
 export default async function ChatMenu() {
   const session = await getServerSession();
+  if (!session?.user?.name) {
+    throw new Error('User name is missing from the session.');
+  }
   const chats = await getChats(session?.user?.name);
 
   return (
