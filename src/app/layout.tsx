@@ -24,8 +24,10 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
+  chats,
 }: Readonly<{
   children: React.ReactNode;
+  chats: React.ReactNode;
 }>) {
   const session = await auth();
 
@@ -58,6 +60,7 @@ export default async function RootLayout({
             </div>
           </header>
           <div className="flex flex-col md:flex-row">
+            {chats}
             <div className="flex-grow">{children}</div>
           </div>
         </body>

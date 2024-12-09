@@ -6,7 +6,6 @@ export async function createChat(
   name: string,
   msgs: { role: string; content: string }[]
 ) {
-  // Insert chat
   const { data: chatData, error: chatError } = await supabase
     .from('chats')
     .insert({
@@ -18,7 +17,6 @@ export async function createChat(
 
   if (chatError) throw chatError;
 
-  // Insert messages
   const messagesWithChatId = msgs.map((msg) => ({
     chat_id: chatData.id,
     role: msg.role,
@@ -114,7 +112,6 @@ export async function updateChat(
   chatId: number,
   msgs: { role: string; content: string }[]
 ) {
-  // Delete existing messages
   const { error: deleteError } = await supabase
     .from('messages')
     .delete()
@@ -122,7 +119,6 @@ export async function updateChat(
 
   if (deleteError) throw deleteError;
 
-  // Insert new messages
   const messagesWithChatId = msgs.map((msg) => ({
     chat_id: chatId,
     role: msg.role,
