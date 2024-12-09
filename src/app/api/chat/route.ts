@@ -1,16 +1,27 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
+import type { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 
-export const runtime = 'edge';
+const customAnthropic = createAnthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
-async function handler(req: Request) {
+const withAuth = (
+  handler: (req: NextRequest) => Promise<Response>
+) => {
+  return async (req: NextRequest) => {
+    const session = await auth();
+    if (!session) {
+      return new Response('Unauthorized', { status: 401 });
+    }
+    return handler(req);
+  };
+};
+
+async function handler(req: NextRequest) {
   try {
     const { messages } = await req.json();
-
-    const customAnthropic = createAnthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
 
     const model = customAnthropic('claude-3-haiku-20240307');
 
@@ -38,4 +49,4 @@ async function handler(req: Request) {
   }
 }
 
-export const POST = auth(handler);
+export const POST = withAuth(handler);
