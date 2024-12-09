@@ -1,7 +1,7 @@
 import { redirect, notFound } from 'next/navigation';
 import { auth as getServerSession } from '@/auth';
 
-import { Chat } from '@/components/Chat';
+import Chat from '@/components/Chat';
 
 import { getChat } from '@/db';
 

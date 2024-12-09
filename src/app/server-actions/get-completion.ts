@@ -4,7 +4,7 @@ import { auth as getServerSession } from '@/auth';
 import Anthropic from '@anthropic-ai/sdk';
 
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_SECRET_KEY,
+  apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
 interface IMessageHistory {
@@ -43,7 +43,7 @@ export async function getCompletion(
     if (!chatId) {
       chatId = await createChat(
         session.user.name,
-        messageHistory[0].content.substring(0, 255), // Truncate to fit column
+        messageHistory[0].content.substring(0, 255),
         messages
       );
     } else {

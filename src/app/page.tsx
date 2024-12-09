@@ -1,4 +1,4 @@
-import { Chat } from '@/components/Chat';
+import Chat from '@/components/Chat';
 import { Separator } from '@/components/ui/separator';
 import { auth as getServerSession } from '@/auth';
 import PreviousChats from '@/components/PreviousChat';
